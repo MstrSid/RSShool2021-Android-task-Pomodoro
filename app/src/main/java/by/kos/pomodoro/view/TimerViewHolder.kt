@@ -31,13 +31,11 @@ class TimerViewHolder(
     @DelicateCoroutinesApi
     fun bind(timer: PomodoroTimer) {
         binding.pomodoreTimer.text = timer.currentMs.displayTime()
-
         if (timer.isStarted) {
             startTimer(timer)
         } else {
             stopTimer(timer)
         }
-
         initButtonsListeners(timer)
     }
 
@@ -51,7 +49,6 @@ class TimerViewHolder(
                 }
             }
         }
-
         binding.deleteButton.setOnClickListener { listener.delete(timer.id) }
     }
 
@@ -61,11 +58,9 @@ class TimerViewHolder(
     private fun startTimer(timer: PomodoroTimer) {
         timerOut = timer
         binding.startPauseButton.text = itemView.context.getString(R.string.stop)
-        //job = GlobalScope.launch(Dispatchers.Main) {
         cTimer?.cancel()
         cTimer = getCountDownTimer(timer)
         cTimer?.start()
-        // }
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
     }
@@ -86,7 +81,7 @@ class TimerViewHolder(
         val countDownTimer = object : CountDownTimer(PERIOD, UNIT_TEN_MS) {
             val interval = UNIT_TEN_MS
             override fun onTick(millisUntilFinished: Long) {
-                timer.currentMs -= interval + System.currentTimeMillis() - System.currentTimeMillis() // -= обратный отсчет
+                timer.currentMs -= interval + System.currentTimeMillis() - System.currentTimeMillis()
                 TimerListener.Current.currentMs = timer.currentMs
                 binding.customView.setPeriod(timer.totalMs)
                 binding.customView.setCurrent(timer.currentMs)
@@ -111,7 +106,6 @@ class TimerViewHolder(
 
 
     private companion object {
-        private const val START_TIME = "00:00:00"
         private const val UNIT_TEN_MS = 1000L
         private const val PERIOD = 1000L * 60L * 60L * 24L // Day
     }
