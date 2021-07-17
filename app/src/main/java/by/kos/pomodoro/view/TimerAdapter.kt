@@ -1,5 +1,6 @@
 package by.kos.pomodoro.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,6 +10,8 @@ import by.kos.pomodoro.interfaces.TimerListener
 import by.kos.pomodoro.model.PomodoroTimer
 
 class TimerAdapter(private val listener: TimerListener): ListAdapter<PomodoroTimer, TimerViewHolder>(itemComparator) {
+
+    var isStopped: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -22,10 +25,18 @@ class TimerAdapter(private val listener: TimerListener): ListAdapter<PomodoroTim
 
     override fun onViewRecycled(holder: TimerViewHolder) {
         super.onViewRecycled(holder)
+        Log.d("isstopped", isStopped.toString()+" adapter")
         if(holder.cTimer != null){
             holder.cTimer?.cancel()
+            if(isStopped == true){
+                holder.cTimer?.onFinish()
+                Log.d("isstopped", isStopped.toString()+" adapter if")
+            }
         }
+
     }
+
+
 
     private companion object {
 

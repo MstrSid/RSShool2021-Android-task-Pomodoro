@@ -22,6 +22,10 @@ import by.kos.pomodoro.utils.COMMAND_START
 import by.kos.pomodoro.utils.COMMAND_STOP
 import by.kos.pomodoro.utils.STARTED_TIMER_TIME_MS
 import by.kos.pomodoro.view.TimerAdapter
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
 
@@ -44,9 +48,9 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         }
 
         binding.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                timerAdapter.isStopped = false
+                Log.d("isstopped", timerAdapter.isStopped.toString()+" main scroll start")
                 super.onScrollStateChanged(recyclerView, newState)
                 val firstVisiblePosition =
                     (recyclerView.layoutManager as LinearLayoutManager?)!!.findFirstVisibleItemPosition()
@@ -81,9 +85,12 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
                                 }
 
                                 override fun onFinish() {
-                                    isRunning = false
                                     cancel()
+                                    isRunning = false
                                     stop(timers[i].id, 0L)
+                                    timerAdapter.isStopped = true
+                                    timerAdapter.notifyDataSetChanged()
+                                    Log.d("isstopped", timerAdapter.isStopped.toString()+" main finish")
                                 }
 
                             }.start()
@@ -147,6 +154,7 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
 
     }
 
+    @DelicateCoroutinesApi
     private fun changeTimer(id: Int, currentMs: Long?, isStarted: Boolean) {
         timers.forEach {
             if (it.id == id) {
@@ -159,7 +167,9 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
             }
         }
         timerAdapter.submitList(timers)
+        GlobalScope.launch(Dispatchers.Main) {
         timerAdapter.notifyDataSetChanged()
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
